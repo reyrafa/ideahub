@@ -2,14 +2,14 @@
 
 use App\Filament\Admin\Resources\Categories\Pages\ManageCategories;
 use App\Filament\Admin\Resources\Ideas\Pages\ListIdeas;
+use App\Filament\Admin\Resources\Roles\Pages\CreateRole;
+use App\Filament\Admin\Resources\Roles\Pages\EditRole;
+use App\Filament\Admin\Resources\Roles\Pages\ListRoles;
+use App\Filament\Admin\Resources\Roles\RoleResource;
 use App\Filament\Admin\Resources\Users\Pages\CreateUser;
 use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use App\Models\Idea;
 use App\Models\User;
-use BezhanSalleh\FilamentShield\Resources\Roles\Pages\CreateRole;
-use BezhanSalleh\FilamentShield\Resources\Roles\Pages\EditRole;
-use BezhanSalleh\FilamentShield\Resources\Roles\Pages\ListRoles;
-use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Gate;
@@ -85,33 +85,21 @@ it('test 28 forbids direct Livewire calls to the admin pages for employees and r
     }
 })->with(['employee', 'reviewer']);
 
-it('keeps the Shield role screen read-only so built-in roles and permissions survive', function () {
-    $before = Role::with('permissions')->get()->mapWithKeys(
-        fn (Role $role) => [$role->name => $role->permissions->pluck('name')->sort()->values()->all()],
-    )->all();
-    $admin = User::factory()->admin()->create();
-    $role = Role::findByName('reviewer');
+it('forbids employees and reviewers from the role editor pages by Livewire', function (string $role) {
     Filament::setCurrentPanel('admin');
-    $this->actingAs($admin);
+    $this->actingAs(User::factory()->{$role}()->create());
+    $reviewer = Role::findByName('reviewer');
 
-    expect($admin->can('create', Role::class))->toBeFalse()
-        ->and($admin->can('update', $role))->toBeFalse()
-        ->and($admin->can('delete', $role))->toBeFalse();
-
-    Livewire::test(EditRole::class, ['record' => $role->getKey()])->assertForbidden();
+    Livewire::test(EditRole::class, ['record' => $reviewer->getKey()])->assertForbidden();
     Livewire::test(CreateRole::class)->assertForbidden();
+    $this->get('/admin/shield/roles/create')->assertForbidden();
+    $this->get("/admin/shield/roles/{$reviewer->getKey()}/edit")->assertForbidden();
+})->with(['employee', 'reviewer']);
 
-    $after = Role::with('permissions')->get()->mapWithKeys(
-        fn (Role $role) => [$role->name => $role->permissions->pluck('name')->sort()->values()->all()],
-    )->all();
-
-    expect($after)->toBe($before)
-        ->and($before['admin'])->toContain('users.manage')
-        ->and($before['employee'])->toContain('ideas.vote');
-});
-
-it('hides the Shield role resource from the navigation', function () {
+it('shows the role editor to admins in the Administration navigation group', function () {
     Filament::setCurrentPanel('admin');
+    $this->actingAs(User::factory()->admin()->create());
 
-    expect(RoleResource::shouldRegisterNavigation())->toBeFalse();
+    expect(RoleResource::shouldRegisterNavigation())->toBeTrue()
+        ->and(RoleResource::getNavigationGroup())->toBe('Administration');
 });

@@ -6,20 +6,26 @@ use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Permission\Models\Role;
 
 class UserForm
 {
     /**
-     * Assignable roles, keyed by role name.
+     * Assignable roles (built-in and custom), keyed by role name.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    public const ROLES = [
-        'employee' => 'Employee',
-        'reviewer' => 'Reviewer',
-        'admin' => 'Admin',
-    ];
+    public static function roleOptions(): array
+    {
+        return Role::query()
+            ->where('guard_name', 'web')
+            ->orderBy('name')
+            ->pluck('name')
+            ->mapWithKeys(fn (string $name): array => [$name => Str::headline($name)])
+            ->all();
+    }
 
     public static function configure(Schema $schema): Schema
     {
@@ -37,9 +43,9 @@ class UserForm
                 TextInput::make('department')
                     ->maxLength(255),
                 Select::make('role')
-                    ->options(self::ROLES)
+                    ->options(fn (): array => self::roleOptions())
                     ->required()
-                    ->in(array_keys(self::ROLES))
+                    ->in(fn (): array => array_keys(self::roleOptions()))
                     ->selectablePlaceholder(false)
                     ->default('employee')
                     ->afterStateHydrated(function (Select $component, ?User $record): void {

@@ -54,6 +54,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->plugin(FilamentShieldPlugin::make()->registerNavigation(false));
+            ->plugin(FilamentShieldPlugin::make()->navigationGroup('Administration')->navigationSort(3));
     }
 }

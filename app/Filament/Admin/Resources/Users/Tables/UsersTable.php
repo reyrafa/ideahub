@@ -9,6 +9,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class UsersTable
 {
@@ -31,11 +32,11 @@ class UsersTable
                 TextColumn::make('roles.name')
                     ->label('Role')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => UserForm::ROLES[$state] ?? $state),
+                    ->formatStateUsing(fn (string $state): string => Str::headline($state)),
             ])
             ->filters([
                 SelectFilter::make('role')
-                    ->options(UserForm::ROLES)
+                    ->options(fn (): array => UserForm::roleOptions())
                     ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
                         ? $query->whereHas('roles', fn (Builder $roles): Builder => $roles->where('name', $data['value']))
                         : $query),
