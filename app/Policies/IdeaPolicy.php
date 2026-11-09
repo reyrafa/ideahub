@@ -72,6 +72,22 @@ class IdeaPolicy
         return $user->can('ideas.change-status') && ! $this->isAuthor($user, $idea);
     }
 
+    /**
+     * Withdrawn ideas are restored by admins only.
+     */
+    public function restore(User $user, Idea $idea): bool
+    {
+        return $user->can('ideas.manage-any');
+    }
+
+    /**
+     * Ideas are never permanently deleted.
+     */
+    public function forceDelete(User $user, Idea $idea): bool
+    {
+        return false;
+    }
+
     public function viewAuthor(User $user, Idea $idea): bool
     {
         return $user->can('ideas.view-anonymous-author');

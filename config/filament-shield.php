@@ -24,9 +24,9 @@ return [
         'show_model_path' => true,
         'cluster' => null,
         'tabs' => [
-            'pages' => true,
-            'widgets' => true,
-            'resources' => true,
+            'pages' => false,
+            'widgets' => false,
+            'resources' => false,
             'custom_permissions' => false,
         ],
     ],
@@ -70,7 +70,7 @@ return [
 
     'super_admin' => [
         'enabled' => true,
-        'name' => 'super_admin',
+        'name' => 'admin',
         'define_via_gate' => false,
         'intercept_gate' => 'before',
     ],
@@ -87,7 +87,7 @@ return [
     */
 
     'panel_user' => [
-        'enabled' => true,
+        'enabled' => false,
         'name' => 'panel_user',
     ],
 
@@ -141,7 +141,7 @@ return [
     'policies' => [
         'path' => app_path('Policies'),
         'merge' => true,
-        'generate' => true,
+        'generate' => false,
         'methods' => [
             'viewAny', 'view', 'create', 'update', 'delete', 'deleteAny', 'restore',
             'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',

@@ -28,6 +28,6 @@ class UserPolicy
 
     public function delete(User $user, User $model): bool
     {
-        return $user->can('users.manage');
+        return $user->can('users.manage') && $user->isNot($model);
     }
 }

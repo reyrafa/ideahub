@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property bool $is_active
+ * @property-read int|null $ideas_count Only present on queries that use withCount('ideas')
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */

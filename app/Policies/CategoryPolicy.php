@@ -27,8 +27,11 @@ class CategoryPolicy
         return $user->can('categories.manage');
     }
 
+    /**
+     * Categories in use (withdrawn ideas included) are deactivated instead of deleted.
+     */
     public function delete(User $user, Category $category): bool
     {
-        return $user->can('categories.manage');
+        return $user->can('categories.manage') && ! $category->ideas()->withTrashed()->exists();
     }
 }
