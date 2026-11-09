@@ -20,9 +20,9 @@ class IdeaRules
                 'integer',
                 Rule::exists('categories', 'id')->where('is_active', true),
             ],
-            'problem' => ['required', 'string', 'min:30'],
-            'proposal' => ['required', 'string', 'min:30'],
-            'expected_impact' => ['nullable', 'string'],
+            'problem' => ['required', 'string', 'min:30', 'max:5000'],
+            'proposal' => ['required', 'string', 'min:30', 'max:5000'],
+            'expected_impact' => ['nullable', 'string', 'max:5000'],
             'is_anonymous' => ['boolean'],
         ];
     }
