@@ -45,6 +45,29 @@ class IdeaInfolist
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
+                Section::make('Results')
+                    ->schema([
+                        Grid::make(['default' => 1, 'sm' => 3])
+                            ->schema([
+                                TextEntry::make('hours_saved')
+                                    ->label('Hours saved')
+                                    ->numeric(decimalPlaces: 1)
+                                    ->placeholder('Not recorded'),
+                                TextEntry::make('money_saved')
+                                    ->label('Money saved')
+                                    ->numeric(decimalPlaces: 2)
+                                    ->placeholder('Not recorded'),
+                                TextEntry::make('results_recorded_at')
+                                    ->label('Recorded')
+                                    ->dateTime('M j, Y'),
+                            ]),
+                        TextEntry::make('results_note')
+                            ->label('Note')
+                            ->placeholder('No note')
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn (Idea $record): bool => $record->hasResults())
+                    ->columnSpanFull(),
                 Section::make('Comments')
                     ->schema([
                         Livewire::make(IdeaComments::class, fn (Idea $record): array => ['idea' => $record]),

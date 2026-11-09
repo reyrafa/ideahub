@@ -26,6 +26,11 @@ use Illuminate\Support\Carbon;
  * @property IdeaStatus $status
  * @property int $votes_count
  * @property Carbon $submitted_at
+ * @property numeric-string|null $hours_saved
+ * @property numeric-string|null $money_saved
+ * @property string|null $results_note
+ * @property int|null $results_recorded_by
+ * @property Carbon|null $results_recorded_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -58,6 +63,9 @@ class Idea extends Model
             'status' => IdeaStatus::class,
             'is_anonymous' => 'boolean',
             'submitted_at' => 'datetime',
+            'hours_saved' => 'decimal:1',
+            'money_saved' => 'decimal:2',
+            'results_recorded_at' => 'datetime',
         ];
     }
 
@@ -67,6 +75,19 @@ class Idea extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function resultsRecordedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'results_recorded_by');
+    }
+
+    public function hasResults(): bool
+    {
+        return $this->results_recorded_at !== null;
     }
 
     /**

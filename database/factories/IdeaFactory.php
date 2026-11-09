@@ -41,6 +41,21 @@ class IdeaFactory extends Factory
         ]);
     }
 
+    /**
+     * An Implemented idea with recorded results (F12).
+     */
+    public function implemented(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => IdeaStatus::Implemented,
+            'hours_saved' => fake()->randomFloat(1, 1, 200),
+            'money_saved' => fake()->randomFloat(2, 100, 50000),
+            'results_note' => fake()->sentence(),
+            'results_recorded_by' => User::factory(),
+            'results_recorded_at' => now(),
+        ]);
+    }
+
     public function status(IdeaStatus $status): static
     {
         return $this->state(fn (array $attributes) => [

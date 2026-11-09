@@ -73,6 +73,24 @@ class IdeaPolicy
     }
 
     /**
+     * F12: reviewers and admins record results (the Implemented-only rule lives in the action), but never on their own idea (mirrors BR-9).
+     */
+    public function recordResults(User $user, Idea $idea): bool
+    {
+        return $user->can('ideas.change-status')
+            && ! $this->isAuthor($user, $idea)
+            && ! $idea->trashed();
+    }
+
+    /**
+     * F13: only admins export every idea.
+     */
+    public function export(User $user): bool
+    {
+        return $user->can('ideas.manage-any');
+    }
+
+    /**
      * Withdrawn ideas are restored by admins only.
      */
     public function restore(User $user, Idea $idea): bool

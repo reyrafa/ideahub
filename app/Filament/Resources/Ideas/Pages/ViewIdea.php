@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Ideas\Pages;
 
 use App\Actions\ChangeIdeaStatus;
+use App\Actions\RecordIdeaResults;
 use App\Actions\ToggleVote;
 use App\Actions\WithdrawIdea;
 use App\Enums\IdeaStatus;
@@ -13,6 +14,7 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Utilities\Get;
@@ -49,6 +51,7 @@ class ViewIdea extends ViewRecord
             $this->voteAction(),
             EditAction::make(),
             $this->changeStatusAction(),
+            $this->recordResultsAction(),
             $this->withdrawAction(),
         ];
     }
@@ -108,6 +111,45 @@ class ViewIdea extends ViewRecord
                     ->title("Status changed to {$this->record->status->getLabel()}")
                     ->success()
                     ->send();
+            });
+    }
+
+    private function recordResultsAction(): Action
+    {
+        return Action::make('recordResults')
+            ->label('Record results')
+            ->icon(Heroicon::OutlinedChartBar)
+            ->visible(fn (): bool => $this->record->status === IdeaStatus::Implemented
+                && $this->user()->can('recordResults', $this->record))
+            ->modalHeading('Record results')
+            ->modalSubmitActionLabel('Save results')
+            ->fillForm(fn (): array => [
+                'hours_saved' => $this->record->hours_saved,
+                'money_saved' => $this->record->money_saved,
+                'results_note' => $this->record->results_note,
+            ])
+            ->schema([
+                TextInput::make('hours_saved')
+                    ->label('Hours saved')
+                    ->numeric()
+                    ->minValue(0)
+                    ->step(0.1),
+                TextInput::make('money_saved')
+                    ->label('Money saved')
+                    ->numeric()
+                    ->minValue(0)
+                    ->step(0.01),
+                Textarea::make('results_note')
+                    ->label('Note')
+                    ->rows(3)
+                    ->maxLength(1000),
+            ])
+            ->action(function (array $data): void {
+                app(RecordIdeaResults::class)->handle($this->user(), $this->record, $data);
+
+                $this->record->refresh();
+
+                Notification::make()->title('Results recorded')->success()->send();
             });
     }
 
