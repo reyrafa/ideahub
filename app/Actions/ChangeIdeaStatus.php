@@ -6,6 +6,7 @@ use App\Enums\IdeaStatus;
 use App\Models\Idea;
 use App\Models\StatusChange;
 use App\Models\User;
+use App\Notifications\IdeaStatusChanged;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -47,7 +48,23 @@ class ChangeIdeaStatus
 
         $idea->refresh();
 
+        $this->notifyAuthor($user, $idea, $change);
+
         return $change;
+    }
+
+    /**
+     * F8: runs after the transaction has committed; skipped if the actor is the author.
+     */
+    private function notifyAuthor(User $actor, Idea $idea, StatusChange $change): void
+    {
+        $author = $idea->author;
+
+        if ($author === null || $author->is($actor) || $change->from_status === null) {
+            return;
+        }
+
+        $author->notify(new IdeaStatusChanged($idea, $change->from_status, $change->to_status, $change->note));
     }
 
     private function validatedNote(IdeaStatus $to, ?string $note): ?string
