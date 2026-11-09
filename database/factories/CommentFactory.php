@@ -22,7 +22,7 @@ class CommentFactory extends Factory
         return [
             'idea_id' => Idea::factory(),
             'user_id' => User::factory(),
-            'body' => fake()->sentence(10),
+            'body' => $this->faker->sentence(10),
             'is_hidden' => false,
             'hidden_by' => null,
             'hidden_at' => null,

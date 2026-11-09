@@ -22,8 +22,8 @@ class WeeklySummaryFactory extends Factory
         return [
             'period_start' => $end->subDays(7)->toDateString(),
             'period_end' => $end->toDateString(),
-            'summary' => fake()->paragraph(),
-            'ideas_count' => fake()->numberBetween(1, 20),
+            'summary' => $this->faker->paragraph(),
+            'ideas_count' => $this->faker->numberBetween(1, 20),
             'model' => 'claude-sonnet-5-5',
         ];
     }

@@ -23,10 +23,10 @@ class IdeaFactory extends Factory
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
-            'title' => fake()->sentence(6),
-            'problem' => fake()->paragraph(3),
-            'proposal' => fake()->paragraph(3),
-            'expected_impact' => fake()->optional()->sentence(),
+            'title' => $this->faker->sentence(6),
+            'problem' => $this->faker->paragraph(3),
+            'proposal' => $this->faker->paragraph(3),
+            'expected_impact' => $this->faker->optional()->sentence(),
             'is_anonymous' => false,
             'status' => IdeaStatus::New,
             'votes_count' => 0,
@@ -48,9 +48,9 @@ class IdeaFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => IdeaStatus::Implemented,
-            'hours_saved' => fake()->randomFloat(1, 1, 200),
-            'money_saved' => fake()->randomFloat(2, 100, 50000),
-            'results_note' => fake()->sentence(),
+            'hours_saved' => $this->faker->randomFloat(1, 1, 200),
+            'money_saved' => $this->faker->randomFloat(2, 100, 50000),
+            'results_note' => $this->faker->sentence(),
             'results_recorded_by' => User::factory(),
             'results_recorded_at' => now(),
         ]);
