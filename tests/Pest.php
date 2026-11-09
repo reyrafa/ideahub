@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /*
@@ -47,4 +49,38 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * A valid payload for SubmitIdea / UpdateIdea, backed by a real active category.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function validIdeaData(array $overrides = []): array
+{
+    return array_merge([
+        'title' => 'A perfectly fine idea title',
+        'category_id' => Category::factory()->create()->id,
+        'problem' => str_repeat('p', 40),
+        'proposal' => str_repeat('s', 40),
+        'expected_impact' => 'Saves everyone some time.',
+        'is_anonymous' => false,
+    ], $overrides);
+}
+
+/**
+ * Run the callback and return the validation errors it raised (empty if it did not throw).
+ *
+ * @return array<string, array<int, string>>
+ */
+function validationErrorsFrom(Closure $callback): array
+{
+    try {
+        $callback();
+    } catch (ValidationException $exception) {
+        return $exception->errors();
+    }
+
+    return [];
 }

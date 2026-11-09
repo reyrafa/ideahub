@@ -101,6 +101,23 @@ class Idea extends Model
     }
 
     /**
+     * The author's display name for the viewer (BR-7): anonymous ideas hide the
+     * author from everyone except the author themself and users who may view it.
+     */
+    public function authorNameFor(?User $viewer): string
+    {
+        if (! $this->is_anonymous) {
+            return $this->author->name;
+        }
+
+        if ($viewer !== null && ($viewer->id === $this->user_id || $viewer->can('viewAuthor', $this))) {
+            return $this->author->name;
+        }
+
+        return 'Anonymous';
+    }
+
+    /**
      * Most votes first; ties go to the oldest submission.
      *
      * @param  Builder<Idea>  $query

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,6 +39,32 @@ class Comment extends Model
             'is_hidden' => 'boolean',
             'hidden_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Hide hidden comments from users without the permission to see them (BR-14).
+     *
+     * @param  Builder<Comment>  $query
+     */
+    #[Scope]
+    protected function visibleTo(Builder $query, User $user): void
+    {
+        if (! $user->can('comments.view-hidden')) {
+            $query->where('is_hidden', false);
+        }
+    }
+
+    /**
+     * The commenter's display name for the viewer; the anonymous idea author
+     * stays anonymous in their own comments too (BR-7).
+     */
+    public function authorNameFor(?User $viewer): string
+    {
+        if ($this->user_id === $this->idea->user_id) {
+            return $this->idea->authorNameFor($viewer);
+        }
+
+        return $this->author->name;
     }
 
     /**
