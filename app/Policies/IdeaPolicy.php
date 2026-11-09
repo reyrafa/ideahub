@@ -8,6 +8,19 @@ use App\Models\User;
 
 class IdeaPolicy
 {
+    /**
+     * Any user holding a role may browse the board.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->roles()->exists();
+    }
+
+    public function view(User $user, Idea $idea): bool
+    {
+        return $user->roles()->exists();
+    }
+
     public function create(User $user): bool
     {
         return $user->can('ideas.create');

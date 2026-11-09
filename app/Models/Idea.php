@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property-read bool|null $has_voted Only present on queries that add withExists() for the viewer's vote
  */
 #[Fillable([
     'user_id',
