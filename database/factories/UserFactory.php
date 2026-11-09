@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 /**
  * @extends Factory<User>
@@ -30,6 +31,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'department' => fake()->randomElement(['Engineering', 'Sales', 'Support', 'HR', 'Finance']),
         ];
     }
 
@@ -41,5 +43,20 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function employee(): static
+    {
+        return $this->afterCreating(fn (User $user) => $user->assignRole(Role::findOrCreate('employee')));
+    }
+
+    public function reviewer(): static
+    {
+        return $this->afterCreating(fn (User $user) => $user->assignRole(Role::findOrCreate('reviewer')));
+    }
+
+    public function admin(): static
+    {
+        return $this->afterCreating(fn (User $user) => $user->assignRole(Role::findOrCreate('admin')));
     }
 }
